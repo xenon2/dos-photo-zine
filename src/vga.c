@@ -6,6 +6,7 @@
 #include <conio.h>
 
 #include "vga.h"
+#include "dzdecode.h"
 
 #define VGA_PTR ((unsigned char far*)0xA0000000L)
 #define IMG_SIZE 64000
@@ -87,23 +88,24 @@ void load_vga_palette(int index)
 }
 
 
+static int write_vga(unsigned long offset, const unsigned char *data,
+                     unsigned int length)
+{
+    _fmemcpy(VGA_PTR + offset, data, length);
+    return 1;
+}
+
 void load_vga_dat(int index)
 {
     char filename[32];
     int fd;
-    int total = 0, n;
-    unsigned char far *v = (unsigned char far*)0xA0000000L;
     sprintf(filename, "zine/VGA/%d.DAT", index);
 
     fd = open(filename, O_RDONLY | O_BINARY);
     if (fd < 0)
         return;
 
-    for (;;) {
-        n = read(fd, v + total, 64000 - total);
-        if (n <= 0) break;
-        total += n;
-    }
+    dz_decode_file(fd, IMG_SIZE, write_vga);
     close(fd);
 }
 

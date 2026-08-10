@@ -8,6 +8,7 @@
 
 
 #include "ega.h"
+#include "dzdecode.h"
 
 #define EGA_PTR ((unsigned char far*)0xA0000000L)
 
@@ -64,35 +65,38 @@ static void ega_copy_plane_to_vram(const unsigned char *src, int plane)
     }
 }
 
-static void ega_copy_plane_to_vram_memcpy(const unsigned char *src, int plane)
+static int write_ega(unsigned long offset, const unsigned char *data,
+                     unsigned int length)
 {
-    /* VRAM EGA: A000:0000 */
-    void far *vram = (void far *)EGA_VRAM;
-    ega_set_map_mask((unsigned char)(1 << plane));
-    _fmemcpy(vram, src, PLANE_SIZE);
+    while (length) {
+        unsigned int plane = (unsigned int)(offset / PLANE_SIZE);
+        unsigned int in_plane = (unsigned int)(offset % PLANE_SIZE);
+        unsigned int count = PLANE_SIZE - in_plane;
+        if (count > length) count = length;
+        if (plane >= 4) return 0;
+
+        ega_set_map_mask((unsigned char)(1 << plane));
+        _fmemcpy(EGA_VRAM + in_plane, data, count);
+        data += count;
+        offset += count;
+        length -= count;
+    }
+    return 1;
 }
 
 void load_ega_dat(int index)
 {
     char filename[64];
-    int fd, plane;
-    int n;
-    static unsigned char buf[PLANE_SIZE]; /* 28k fits in near static */
+    int fd;
 
     sprintf(filename, "zine/EGA/%d.DAT", index);
     fd = open(filename, O_RDONLY | O_BINARY);
     if (fd < 0) return;
 
-    for (plane = 0; plane < 4; plane++) {
-        n = read(fd, buf, PLANE_SIZE);
-        if (n != PLANE_SIZE) { close(fd); return; }
-        //ega_copy_plane_to_vram(buf, plane);
-        ega_copy_plane_to_vram_memcpy(buf, plane);
-    }
+    dz_decode_file(fd, (unsigned long)PLANE_SIZE * 4L, write_ega);
 
-    /* restore mask to all planes (optional) */
+    /* restore mask to all planes */
     ega_set_map_mask(0x0F);
-
     close(fd);
 }
 

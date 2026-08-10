@@ -31,12 +31,14 @@ for f in "$SRC_DIR"/*.jpg "$SRC_DIR"/*.jpeg "$SRC_DIR"/*.JPG "$SRC_DIR"/*.JPEG; 
     -colors 256 \
     PNG8:"$tmp"
 
-  "$SCRIPT_DIR/png2dat_vga.py" "$tmp" "$OUT_DIR/$i.DAT"
+  raw="$OUT_DIR/$i.raw"
+  "$SCRIPT_DIR/png2dat_vga.py" "$tmp" "$raw"
   "$SCRIPT_DIR/png2pal.py" "$tmp" "$OUT_DIR/$i.PAL"
 
-  rm "$tmp"
+  [ "$(wc -c < "$raw")" -eq "$SIZE" ] || exit 1
+  "$SCRIPT_DIR/dzcompress.py" "$raw" "$OUT_DIR/$i.DAT"
+  rm "$tmp" "$raw"
 
-  [ "$(wc -c < "$OUT_DIR/$i.DAT")" -eq "$SIZE" ] || exit 1
   [ "$(wc -c < "$OUT_DIR/$i.PAL")" -eq 768 ] || exit 1
 
   i=$((i + 1))

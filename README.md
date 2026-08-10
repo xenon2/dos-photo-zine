@@ -4,6 +4,7 @@ A tiny DOS photo zine / image viewer made for fun. It supports:
 
 - VGA mode 13h: 320x200, 256 colors
 - EGA mode 10h: 640x350, 16 colors, planar data
+- Tiny streaming LZSS image decompressor (4 KiB window)
 
 The program auto-detects available image data and video hardware, then lets you pick VGA or EGA from the title screen.
 I've created it to see how my modern images could look in retro aesthetics. Best effect is in EGA mode.

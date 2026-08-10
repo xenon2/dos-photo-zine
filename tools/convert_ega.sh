@@ -57,11 +57,12 @@ for f in "$SRC_DIR"/*.jpg "$SRC_DIR"/*.jpeg "$SRC_DIR"/*.JPG "$SRC_DIR"/*.JPEG; 
     -remap "$TMP_PAL" \
     PNG8:"$tmp8"
 
-  "$SCRIPT_DIR/png2dat_ega.py" "$tmp8" "$OUT_DIR/$i.DAT"
+  raw="$OUT_DIR/$i.raw"
+  "$SCRIPT_DIR/png2dat_ega.py" "$tmp8" "$raw"
 
-  rm "$tmp8" "$tmp24"
-
-  [ "$(wc -c < "$OUT_DIR/$i.DAT")" -eq "$SIZE" ] || exit 1
+  [ "$(wc -c < "$raw")" -eq "$SIZE" ] || exit 1
+  "$SCRIPT_DIR/dzcompress.py" "$raw" "$OUT_DIR/$i.DAT"
+  rm "$tmp8" "$tmp24" "$raw"
 
   i=$((i + 1))
 done
