@@ -13,6 +13,16 @@
 #define SCREEN_W 320
 #define SCREEN_H 200
 
+const ViewerOps vga_viewer_ops = {
+    set_vga_mode,
+    load_vga_palette,
+    load_vga_dat,
+    image_vga_exists,
+    transition_vga,
+    image_info_vga,
+    is_vga
+};
+
 // has_vga_320x200_256
 int is_vga(void)
 {

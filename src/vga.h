@@ -1,6 +1,8 @@
 #ifndef VGA_H
 #define VGA_H
 
+#include "viewer.h"
+
 /* VGA image handling */
 
 void load_vga_palette(int index);
@@ -14,5 +16,6 @@ int is_vga(void);
 
 void image_info_vga(int index);
 
+extern const ViewerOps vga_viewer_ops;
 
 #endif /* VGA_H */

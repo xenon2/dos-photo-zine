@@ -16,6 +16,16 @@
 #define EGA_VRAM ((unsigned char far*)0xA0000000L)
 #define PLANE_SIZE (80 * 350)
 
+const ViewerOps ega_viewer_ops = {
+    set_ega_mode,
+    load_ega_palette,
+    load_ega_dat,
+    image_ega_exists,
+    transition_ega,
+    image_info_ega,
+    is_ega
+};
+
 //has_ega_640x350_4bpp
 int is_ega(void)
 {
