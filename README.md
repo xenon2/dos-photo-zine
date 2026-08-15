@@ -101,6 +101,7 @@ This regenerates `zine/EGA/` and `zine/VGA/`.
 This creates:
 
 - `RELEASE/`
+- `dos-photo-zine.zip`
 
 ## License
 

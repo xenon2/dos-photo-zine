@@ -2,7 +2,7 @@
 set -e
 
 
-rm -rf RELEASE
+rm -rf RELEASE dos-photo-zine.zip
 mkdir -p RELEASE/ZINE/EGA RELEASE/ZINE/VGA
 
 sh ./build.sh
@@ -15,6 +15,6 @@ cp zine/VGA/* RELEASE/ZINE/VGA/
 cp README.md RELEASE/README.TXT
 [ -f LICENSE ] && cp LICENSE RELEASE/
 
-#( cd RELEASE && zip -qr ../dos-photo-zine.zip . )
+( cd RELEASE && zip -qr ../dos-photo-zine.zip . )
 
 echo "Release prepared in RELEASE/ and dos-photo-zine.zip"

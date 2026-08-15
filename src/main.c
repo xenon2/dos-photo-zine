@@ -15,21 +15,14 @@ NO ANY WARRANTY
 
 static const ViewerOps *active_viewer;
 
-enum modes {
+typedef enum ViewerMode {
     MODE_NONE = -2,
     MODE_QUIT = -1,
     VGA,
     EGA
-};
+} ViewerMode;
 
-#define KEY_ASCII(key)      ((key) & 0xFF)
-#define KEY_SCAN(key)       (((key) >> 8) & 0xFF)
-
-#define KEY_ESC             27
-#define KEY_INFO            'i'
-
-#define SCAN_LEFT           0x4B
-#define SCAN_RIGHT          0x4D
+#define KEY_INFO 'i'
 
 static int viewer_available(const ViewerOps *viewer)
 {
@@ -157,7 +150,7 @@ void images_auto_loop(void) {
 
 // Set video mode + set f(x) pointers/handlers
 // for specific video mode
-void set_mode(int mode) {
+void set_mode(ViewerMode mode) {
     switch (mode) {
         case VGA:
             active_viewer = &vga_viewer_ops;
@@ -174,7 +167,7 @@ void set_mode(int mode) {
     active_viewer->set_video_mode();
 }
 
-const char *mode_name(int mode)
+const char *mode_name(ViewerMode mode)
 {
     switch (mode) {
         case VGA:
@@ -187,7 +180,7 @@ const char *mode_name(int mode)
     return "unknown";
 }
 
-int mode_from_key(int key)
+ViewerMode mode_from_key(int key)
 {
     if (KEY_ASCII(key) == KEY_ESC)
         return MODE_QUIT;
@@ -217,9 +210,9 @@ int mode_from_key(int key)
     return MODE_NONE;
 }
 
-int select_mode(void)
+ViewerMode select_mode(void)
 {
-    int mode;
+    ViewerMode mode;
 
     for (;;) {
         mode = mode_from_key(read_key());
@@ -228,7 +221,7 @@ int select_mode(void)
     }
 }
 
-void start_viewer(int mode)
+void start_viewer(ViewerMode mode)
 {
     printf("%s mode selected, switching...\n", mode_name(mode));
     set_mode(mode);
@@ -239,7 +232,7 @@ void start_viewer(int mode)
 
 int main(void)
 {
-    int mode;
+    ViewerMode mode;
 
     banner();
 

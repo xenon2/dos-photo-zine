@@ -1,0 +1,23 @@
+# Build outputs
+build/
+RELEASE/
+*.obj
+*.exe
+*.zip
+
+# Logs / local run output
+*.err
+stdout.txt
+stderr.txt
+shell_history.txt
+
+# IDE / OS
+.idea/
+.DS_Store
+
+# Old local release folders
+-released/
+
+# Python
+__pycache__/
+*.pyc
