@@ -40,8 +40,14 @@ void set_txt_mode(void)
 
 
 
-void banner(void) {
-    const char build_info[] = "= Build: " __DATE__ " " __TIME__ "   =\n";
+static void banner_line(const char *text)
+{
+    printf("| %-39s |\n", text);
+}
+
+void banner(void)
+{
+    char build_info[40];
     int vga_available = viewer_available(&vga_viewer_ops);
     int ega_available = viewer_available(&ega_viewer_ops);
 
@@ -49,27 +55,34 @@ void banner(void) {
     pc_beep(240, 50);
     pc_beep(340, 50);
 
-    printf("=================================\n");
-    printf(build_info);
-    printf("=================================\n");
-    printf("= Super Basic DOS Photo Zine    =\n");
+    sprintf(build_info, "Build: %s %s", __DATE__, __TIME__);
+
+    printf("+-----------------------------------------+\n");
+    banner_line("");
+    banner_line("       WELCOME TO DOS PHOTO ZINE");
+    banner_line("");
+    printf("+-----------------------------------------+\n");
+    banner_line(build_info);
+    banner_line("Choose your display mode:");
+
     if (vga_available) {
-    printf("= [<-]  VGA 320x200 8bit        =\n");
+        banner_line("[1] or [<-]  VGA  320x200 / 256 colors");
     }
 
     if (ega_available) {
-    printf("= [->]  EGA 640x350 4bit        =\n");
+        banner_line("[2] or [->]  EGA  640x350 / 16 colors");
     }
 
     if (!vga_available && !ega_available) {
-        printf("= No video mode or no files  :( =\n");
+        banner_line("No supported video mode or image files!");
     }
 
-    printf("= [ESC] - quit                  =\n");
-    printf("=================================\n");
-    printf("= Keys when viewing:            =\n");
-    printf("= [<-] [->] [i] [Esc]           =\n");
-    printf("=================================\n");
+    banner_line("");
+    banner_line("[ESC] Quit");
+    printf("+-----------------------------------------+\n");
+    banner_line("Viewer: [<-] Previous  [->] Next");
+    banner_line("        [i] Info       [ESC] Exit");
+    printf("+-----------------------------------------+\n");
 }
 
 
