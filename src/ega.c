@@ -16,10 +16,10 @@
 #define EGA_VRAM ((unsigned char far*)0xA0000000L)
 #define PLANE_SIZE (EGA_BYTES_PER_LINE * 350)
 #define PACKED_SIZE (640L * 350L / 2L)
-#define DECODE_BLOCK_SIZE 512
+#define DECODE_BLOCK_SIZE 4096
 
-static unsigned short ega_unpack_low[256];
-static unsigned short ega_unpack_high[256];
+/* One lookup contributes two pixels to all four output planes. */
+static unsigned long ega_unpack_by_position[4][256];
 static unsigned char ega_plane_buffer[4][DECODE_BLOCK_SIZE / 4];
 
 const ViewerOps ega_viewer_ops = {
@@ -88,22 +88,18 @@ static void ega_init_unpack_tables(void)
     for (value = 0; value < 256; value++) {
         unsigned int first = value >> 4;
         unsigned int second = value & 0x0F;
-        unsigned int plane;
-        unsigned int low = 0;
-        unsigned int high = 0;
+        unsigned int plane, position;
+        unsigned long expanded = 0;
 
         for (plane = 0; plane < 4; plane++) {
             unsigned int pair = (((first >> plane) & 1) << 1) |
                                 ((second >> plane) & 1);
-
-            if (plane < 2)
-                low |= pair << (plane * 8);
-            else
-                high |= pair << ((plane - 2) * 8);
+            expanded |= (unsigned long)pair << (plane * 8);
         }
 
-        ega_unpack_low[value] = (unsigned short)low;
-        ega_unpack_high[value] = (unsigned short)high;
+        for (position = 0; position < 4; position++)
+            ega_unpack_by_position[position][value] =
+                expanded << (6 - position * 2);
     }
 }
 
@@ -125,19 +121,16 @@ static int write_ega_packed(unsigned long offset, const unsigned char *data,
 
     for (i = 0; i < count; i++) {
         unsigned int at = i * 4;
-        unsigned int low = (ega_unpack_low[data[at]] << 6) |
-                           (ega_unpack_low[data[at + 1]] << 4) |
-                           (ega_unpack_low[data[at + 2]] << 2) |
-                            ega_unpack_low[data[at + 3]];
-        unsigned int high = (ega_unpack_high[data[at]] << 6) |
-                            (ega_unpack_high[data[at + 1]] << 4) |
-                            (ega_unpack_high[data[at + 2]] << 2) |
-                             ega_unpack_high[data[at + 3]];
+        unsigned long expanded =
+            ega_unpack_by_position[0][data[at]] |
+            ega_unpack_by_position[1][data[at + 1]] |
+            ega_unpack_by_position[2][data[at + 2]] |
+            ega_unpack_by_position[3][data[at + 3]];
 
-        ega_plane_buffer[0][i] = (unsigned char)low;
-        ega_plane_buffer[1][i] = (unsigned char)(low >> 8);
-        ega_plane_buffer[2][i] = (unsigned char)high;
-        ega_plane_buffer[3][i] = (unsigned char)(high >> 8);
+        ega_plane_buffer[0][i] = (unsigned char)expanded;
+        ega_plane_buffer[1][i] = (unsigned char)(expanded >> 8);
+        ega_plane_buffer[2][i] = (unsigned char)(expanded >> 16);
+        ega_plane_buffer[3][i] = (unsigned char)(expanded >> 24);
     }
 
     for (plane = 0; plane < 4; plane++) {

@@ -1,7 +1,9 @@
 # ==== Makefile ====
-CC      = wcl
-CFLAGS  = -bt=dos -mh -zq -ol
-TARGET  = main.exe
+CC         = wcl
+CPU_FLAGS  ?= -3
+OPT_FLAGS  ?= -ox -ot
+CFLAGS     = -bt=dos -mh -zq $(CPU_FLAGS) $(OPT_FLAGS)
+TARGET     = main.exe
 
 SRCS    := $(wildcard src/*.c)
 OBJS    := $(patsubst src/%.c,build/%.obj,$(SRCS))

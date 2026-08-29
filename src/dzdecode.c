@@ -5,13 +5,14 @@
 #include "dzdecode.h"
 
 #define WINDOW_SIZE 4096
-#define OUT_SIZE 512
+#define INPUT_SIZE 4096
+#define OUT_SIZE 4096
 
 typedef struct input_buffer {
     int fd;
     unsigned int at;
     unsigned int size;
-    unsigned char data[512];
+    unsigned char data[INPUT_SIZE];
 } input_buffer;
 
 static int get_byte(input_buffer *in)
@@ -47,7 +48,7 @@ int dz_decode_file(int fd, unsigned long expected_size, dz_writer writer)
     static unsigned char out[OUT_SIZE];
     static input_buffer in;
     unsigned long written = 0;
-    unsigned long unpacked;
+    unsigned long unpacked, remaining;
     unsigned int win_at = 0, used = 0;
     int flags = 0, bits = 0;
     int a, b, value;
@@ -72,9 +73,11 @@ int dz_decode_file(int fd, unsigned long expected_size, dz_writer writer)
     memset(window, 0, sizeof(window));
     in.fd = fd;
     in.at = in.size = 0;
+    /* Keep 32-bit accounting out of the match byte loop on a 16-bit CPU. */
+    remaining = unpacked;
 
-    while (written + used < unpacked) {
-        unsigned int distance, length, i;
+    while (remaining != 0) {
+        unsigned int distance, length;
 
         if (bits == 0) {
             flags = get_byte(&in);
@@ -85,27 +88,48 @@ int dz_decode_file(int fd, unsigned long expected_size, dz_writer writer)
         if (flags & 1) {
             value = get_byte(&in);
             if (value < 0) return 0;
-            length = 1;
-            distance = 0;
+
+            window[win_at] = (unsigned char)value;
+            win_at = (win_at + 1) & (WINDOW_SIZE - 1);
+            out[used++] = (unsigned char)value;
+            remaining--;
+
+            if (used == OUT_SIZE && !flush_output(writer, &written, out, &used))
+                return 0;
         } else {
+            unsigned int copy_at, available, chunk, i;
+
             a = get_byte(&in);
             b = get_byte(&in);
             if (a < 0 || b < 0) return 0;
             distance = ((unsigned int)a | ((unsigned int)(b & 15) << 8)) + 1;
             length = ((unsigned int)b >> 4) + 3;
+            if (remaining < length) length = (unsigned int)remaining;
+            copy_at = (win_at - distance) & (WINDOW_SIZE - 1);
+
+            /* Copy to the next output boundary without testing it per byte. */
+            while (length != 0) {
+                available = OUT_SIZE - used;
+                chunk = length < available ? length : available;
+
+                for (i = 0; i < chunk; i++) {
+                    unsigned char byte = window[copy_at];
+                    copy_at = (copy_at + 1) & (WINDOW_SIZE - 1);
+                    window[win_at] = byte;
+                    win_at = (win_at + 1) & (WINDOW_SIZE - 1);
+                    out[used + i] = byte;
+                }
+
+                used += chunk;
+                remaining -= chunk;
+                length -= chunk;
+                if (used == OUT_SIZE &&
+                    !flush_output(writer, &written, out, &used)) return 0;
+            }
         }
+
         flags >>= 1;
         bits--;
-
-        for (i = 0; i < length && written + used < unpacked; i++) {
-            if (distance)
-                value = window[(win_at - distance) & (WINDOW_SIZE - 1)];
-            window[win_at] = (unsigned char)value;
-            win_at = (win_at + 1) & (WINDOW_SIZE - 1);
-            out[used++] = (unsigned char)value;
-            if (used == OUT_SIZE && !flush_output(writer, &written, out, &used))
-                return 0;
-        }
     }
 
     return flush_output(writer, &written, out, &used) && written == unpacked;
