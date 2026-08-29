@@ -14,7 +14,13 @@
 
 #define EGA_BYTES_PER_LINE 80
 #define EGA_VRAM ((unsigned char far*)0xA0000000L)
-#define PLANE_SIZE (80 * 350)
+#define PLANE_SIZE (EGA_BYTES_PER_LINE * 350)
+#define PACKED_SIZE (640L * 350L / 2L)
+#define DECODE_BLOCK_SIZE 512
+
+static unsigned short ega_unpack_low[256];
+static unsigned short ega_unpack_high[256];
+static unsigned char ega_plane_buffer[4][DECODE_BLOCK_SIZE / 4];
 
 const ViewerOps ega_viewer_ops = {
     set_ega_mode,
@@ -75,22 +81,70 @@ static void ega_copy_plane_to_vram(const unsigned char *src, int plane)
     }
 }
 
-static int write_ega(unsigned long offset, const unsigned char *data,
-                     unsigned int length)
+static void ega_init_unpack_tables(void)
 {
-    while (length) {
-        unsigned int plane = (unsigned int)(offset / PLANE_SIZE);
-        unsigned int in_plane = (unsigned int)(offset % PLANE_SIZE);
-        unsigned int count = PLANE_SIZE - in_plane;
-        if (count > length) count = length;
-        if (plane >= 4) return 0;
+    unsigned int value;
 
-        ega_set_map_mask((unsigned char)(1 << plane));
-        _fmemcpy(EGA_VRAM + in_plane, data, count);
-        data += count;
-        offset += count;
-        length -= count;
+    for (value = 0; value < 256; value++) {
+        unsigned int first = value >> 4;
+        unsigned int second = value & 0x0F;
+        unsigned int plane;
+        unsigned int low = 0;
+        unsigned int high = 0;
+
+        for (plane = 0; plane < 4; plane++) {
+            unsigned int pair = (((first >> plane) & 1) << 1) |
+                                ((second >> plane) & 1);
+
+            if (plane < 2)
+                low |= pair << (plane * 8);
+            else
+                high |= pair << ((plane - 2) * 8);
+        }
+
+        ega_unpack_low[value] = (unsigned short)low;
+        ega_unpack_high[value] = (unsigned short)high;
     }
+}
+
+static int write_ega_packed(unsigned long offset, const unsigned char *data,
+                            unsigned int length)
+{
+    unsigned int output_offset;
+    unsigned int count;
+    unsigned int i;
+    unsigned int plane;
+
+    if ((offset & 3) || (length & 3) || length > DECODE_BLOCK_SIZE)
+        return 0;
+
+    output_offset = (unsigned int)(offset / 4);
+    count = length / 4;
+    if ((unsigned long)output_offset + count > PLANE_SIZE)
+        return 0;
+
+    for (i = 0; i < count; i++) {
+        unsigned int at = i * 4;
+        unsigned int low = (ega_unpack_low[data[at]] << 6) |
+                           (ega_unpack_low[data[at + 1]] << 4) |
+                           (ega_unpack_low[data[at + 2]] << 2) |
+                            ega_unpack_low[data[at + 3]];
+        unsigned int high = (ega_unpack_high[data[at]] << 6) |
+                            (ega_unpack_high[data[at + 1]] << 4) |
+                            (ega_unpack_high[data[at + 2]] << 2) |
+                             ega_unpack_high[data[at + 3]];
+
+        ega_plane_buffer[0][i] = (unsigned char)low;
+        ega_plane_buffer[1][i] = (unsigned char)(low >> 8);
+        ega_plane_buffer[2][i] = (unsigned char)high;
+        ega_plane_buffer[3][i] = (unsigned char)(high >> 8);
+    }
+
+    for (plane = 0; plane < 4; plane++) {
+        ega_set_map_mask((unsigned char)(1 << plane));
+        _fmemcpy(EGA_VRAM + output_offset, ega_plane_buffer[plane], count);
+    }
+
     return 1;
 }
 
@@ -103,7 +157,7 @@ void load_ega_dat(int index)
     fd = open(filename, O_RDONLY | O_BINARY);
     if (fd < 0) return;
 
-    dz_decode_file(fd, (unsigned long)PLANE_SIZE * 4L, write_ega);
+    dz_decode_file(fd, PACKED_SIZE, write_ega_packed);
 
     /* restore mask to all planes */
     ega_set_map_mask(0x0F);
@@ -159,6 +213,8 @@ int image_ega_exists(int index)
 void set_ega_mode(void)
 {
     union REGS r;
+
+    ega_init_unpack_tables();
 
     /* BIOS: EGA 640x350x16 */
     r.h.ah = 0x00;

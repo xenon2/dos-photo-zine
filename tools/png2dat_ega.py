@@ -58,40 +58,7 @@ if not rgb_to_ega:
     print("ERROR: no EGA colors found in PNG palette")
     sys.exit(1)
 
-# ============================================================
-# MODE 1: OLD – planar EGA (4 planes, 1 bit per pixel)
-# ============================================================
-
-def write_planar(outdat):
-    BYTES_PER_LINE = 80      # 640 / 8
-    PLANE_SIZE = BYTES_PER_LINE * h
-    planes = [bytearray(PLANE_SIZE) for _ in range(4)]
-
-    for y in range(h):
-        for xb in range(BYTES_PER_LINE):
-            for plane in range(4):
-                b = 0
-                for bit in range(8):
-                    x = xb * 8 + bit
-                    png_idx = pixels[y*w + x]
-
-                    if png_idx not in rgb_to_ega:
-                        print(f"ERROR: non-EGA color index {png_idx}")
-                        sys.exit(1)
-
-                    ega = rgb_to_ega[png_idx]
-                    b |= ((ega >> plane) & 1) << (7 - bit)
-
-                planes[plane][y*BYTES_PER_LINE + xb] = b
-
-    with open(outdat, "wb") as f:
-        for p in planes:
-            f.write(p)
-
-# ============================================================
-# MODE 2: NEW – packed 4bpp (2 pixels per byte)
-# ============================================================
-
+# Packed 4bpp: high nibble is the left pixel, low nibble is the right pixel.
 def write_packed(outdat):
     out = bytearray((w * h) // 2)
 
@@ -114,9 +81,4 @@ def write_packed(outdat):
     with open(outdat, "wb") as f:
         f.write(out)
 
-# ============================================================
-# SELECT MODE (comment one)
-# ============================================================
-
-write_planar(outdat)   # OLD: planar, direct-to-VRAM friendly
-#write_packed(outdat)    # NEW: packed 4bpp, compact, sane
+write_packed(outdat)
