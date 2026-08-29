@@ -9,7 +9,7 @@ Put source `.jpg` files in `assets/source/`, then run:
 Generated viewer data is written to:
 
 - `zine/VGA/` as compressed 320x200 index data plus 256-color palettes
-- `zine/EGA/` as compressed planar 640x350 16-color EGA data
+- `zine/EGA/` as compressed packed 4bpp 640x350 16-color EGA data
 
 ## DAT compression
 
@@ -18,7 +18,9 @@ standard library. Its 4 KiB history window and 3--18 byte matches keep the DOS
 decoder (`src/dzdecode.c`) small. It uses about 5 KiB of static workspace.
 Decoding is streamed in 512-byte blocks directly to VGA memory, so no
 complete 64/112 KiB image buffer is needed.
-The EGA stream is similarly sent to one video plane at a time.
+The EGA stream stores two 4-bit pixels per byte. During decoding, each
+512-byte block is transposed into four small plane buffers and copied directly
+to EGA video memory.
 
 The DAT layout is:
 

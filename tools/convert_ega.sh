@@ -9,7 +9,7 @@ TMP_PAL="$OUT_DIR/ega16.png"
 
 W=640
 H=350
-SIZE=$((80 * H * 4))
+SIZE=$((W * H / 2))
 
 echo "EGA converter: $SRC_DIR -> $OUT_DIR"
 mkdir -p "$OUT_DIR"
