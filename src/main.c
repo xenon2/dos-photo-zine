@@ -4,9 +4,6 @@ NO ANY WARRANTY
 
 #include <dos.h>
 #include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>   // malloc, free
 
 #include "vga.h"
 #include "ega.h"
@@ -30,10 +27,10 @@ static int viewer_available(const ViewerOps *viewer)
 }
 
 
-void set_txt_mode(void)
+static void set_txt_mode(void)
 {
     union REGS r;
-    r.h.ah = 0x00; //0x83h
+    r.h.ah = 0x00;
     r.h.al = 0x03;
     int86(0x10, &r, &r);
 }
@@ -45,7 +42,7 @@ static void banner_line(const char *text)
     printf("| %-39s |\n", text);
 }
 
-void banner(void)
+static void banner(void)
 {
     char build_info[40];
     int vga_available = viewer_available(&vga_viewer_ops);
@@ -86,16 +83,37 @@ void banner(void)
 }
 
 
-void exit_prog(void) {
+static void exit_prog(void) {
     pc_beep(340, 50);
     pc_beep(240, 50);
     pc_beep(140, 50);
     printf("See you!\n");
 }
 
-void images_key_loop(void) {
-    int current = 1;    // image index
-    int key;            // kb key
+static int previous_image(int current)
+{
+    if (current > 1)
+        return current - 1;
+
+    current = 1;
+    while (active_viewer->image_exists(current))
+        current++;
+
+    return current - 1;
+}
+
+static int next_image(int current)
+{
+    current++;
+    if (!active_viewer->image_exists(current))
+        return 1;
+
+    return current;
+}
+
+static void images_key_loop(void) {
+    int current = 1;
+    int key;
 
     for (;;) {
         active_viewer->load_palette(current);
@@ -115,19 +133,11 @@ void images_key_loop(void) {
         switch (KEY_SCAN(key))
         {
             case SCAN_LEFT:
-                current--;
-                if (current < 1) {
-                    current = 1;
-                    while (active_viewer->image_exists(current))
-                        current++;
-                    current--;  // last
-                }
+                current = previous_image(current);
                 break;
 
             case SCAN_RIGHT:
-                current++;
-                if (!active_viewer->image_exists(current))
-                    current = 1;
+                current = next_image(current);
                 break;
         }
        active_viewer->transition();
@@ -135,16 +145,15 @@ void images_key_loop(void) {
 }
 
 
-void images_auto_loop(void) {
-    int current = 1;    // image index
-    int key;            // kb key
+static void images_auto_loop(void) {
+    int current = 1;
+    int key;
     int looper = 0;
 
      for (;;) {
         active_viewer->load_palette(current);
         active_viewer->load_image(current);
 
-        //
         for (looper=0;looper<10;looper++) {
             sleep_nseconds(100);
             key = read_key_nb();
@@ -161,9 +170,7 @@ void images_auto_loop(void) {
 
 }
 
-// Set video mode + set f(x) pointers/handlers
-// for specific video mode
-void set_mode(ViewerMode mode) {
+static void set_mode(ViewerMode mode) {
     switch (mode) {
         case VGA:
             active_viewer = &vga_viewer_ops;
@@ -180,7 +187,7 @@ void set_mode(ViewerMode mode) {
     active_viewer->set_video_mode();
 }
 
-const char *mode_name(ViewerMode mode)
+static const char *mode_name(ViewerMode mode)
 {
     switch (mode) {
         case VGA:
@@ -193,7 +200,7 @@ const char *mode_name(ViewerMode mode)
     return "unknown";
 }
 
-ViewerMode mode_from_key(int key)
+static ViewerMode mode_from_key(int key)
 {
     if (KEY_ASCII(key) == KEY_ESC)
         return MODE_QUIT;
@@ -223,7 +230,7 @@ ViewerMode mode_from_key(int key)
     return MODE_NONE;
 }
 
-ViewerMode select_mode(void)
+static ViewerMode select_mode(void)
 {
     ViewerMode mode;
 
@@ -234,13 +241,12 @@ ViewerMode select_mode(void)
     }
 }
 
-void start_viewer(ViewerMode mode)
+static void start_viewer(ViewerMode mode)
 {
     printf("%s mode selected, switching...\n", mode_name(mode));
     set_mode(mode);
 
     images_key_loop();
-    //images_auto_loop();
 }
 
 int main(void)
