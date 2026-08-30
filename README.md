@@ -55,7 +55,7 @@ Build:
 
 Image conversion:
 
-- ImageMagick
+- ImageMagick 7+
 - Python 3
 - Pillow
 
@@ -73,10 +73,11 @@ Tested tool versions in this environment:
 ## Build
 
 ```sh
-./build.sh
+WATCOM=/path/to/open-watcom ./build.sh
 ```
 
-or:
+If your Open Watcom environment already defines `WATCOM`, `./build.sh` is
+enough. Alternatively, with the environment configured manually:
 
 ```sh
 make

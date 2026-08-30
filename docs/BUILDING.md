@@ -1,6 +1,7 @@
 # Building
 
-Install Open Watcom C and make sure `wcl` is on `PATH`.
+Install Open Watcom C and set `WATCOM` to its installation directory. If
+`wcl` is not already on `PATH`, `build.sh` selects `binl64` or `binl` on Linux.
 
 Tested compiler:
 
@@ -12,8 +13,12 @@ Version 2.0 beta Dec  8 2023 19:09:05 (64-bit)
 Then run from the repository root:
 
 ```sh
-./build.sh
+WATCOM=/path/to/open-watcom ./build.sh
 ```
+
+The build explicitly uses Watcom's `lib286` libraries because they provide the
+16-bit runtime required by the real-mode `-mh` target. The `-3` option may still
+generate 386 instructions suitable for a 386SX; `lib386` is for 32-bit targets.
 
 The DOS executable is written to `main.exe`. The default build targets an
 80386 or newer CPU and favors runtime speed:
