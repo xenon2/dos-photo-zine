@@ -36,7 +36,7 @@ if ! command -v wcl >/dev/null 2>&1; then
 fi
 
 INCLUDE="$WATCOM/h"
-# lib286 contains Watcom's 16-bit runtime used by 386 real-mode (-3 -mh) code.
+# lib286 contains Watcom's 16-bit runtime used by 386 real-mode (-3 -ms) code.
 LIB="$WATCOM/lib286;$WATCOM/lib286/dos"
 export WATCOM PATH INCLUDE LIB
 
