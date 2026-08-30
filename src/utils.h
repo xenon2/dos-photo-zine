@@ -9,6 +9,7 @@
 #define SCAN_RIGHT 0x4D
 
 void sleep_nseconds(unsigned int nseconds);
+void clear_keyboard_buffer(void);
 int read_key_nb(void);
 int read_key(void);
 

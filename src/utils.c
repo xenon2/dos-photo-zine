@@ -1,3 +1,4 @@
+#include <bios.h>
 #include <dos.h>
 
 #include "utils.h"
@@ -27,23 +28,28 @@ void sleep_nseconds(unsigned int nseconds)
     }
 }
 
+void clear_keyboard_buffer(void)
+{
+    while (_bios_keybrd(_KEYBRD_READY) != 0)
+        _bios_keybrd(_KEYBRD_READ);
+}
+
 int read_key_nb(void)
 {
-    union REGS r;
-    r.h.ah = 0x01;          /* check */
-    int86(0x16, &r, &r);
-    if (r.x.ax == 0)
+    if (_bios_keybrd(_KEYBRD_READY) == 0)
         return -1;
-    r.h.ah = 0x00;          /* read */
-    int86(0x16, &r, &r);
-    return r.x.ax;
+
+    return _bios_keybrd(_KEYBRD_READ);
 }
 
 int read_key(void)
 {
-    union REGS r;
+    int key;
+
     pc_beep(2340, 15);
-    r.h.ah = 0x00;
-    int86(0x16, &r, &r);
-    return r.x.ax;
+    key = _bios_keybrd(_KEYBRD_READ);
+
+    /* Treat a burst/key-repeat as one action. */
+    clear_keyboard_buffer();
+    return key;
 }
