@@ -3,7 +3,7 @@ set -e
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 ROOT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
-SRC_DIR=${1:-"$ROOT_DIR/assets/source"}
+SRC_DIR=${1:-"$ROOT_DIR/images"}
 OUT_DIR=${2:-"$ROOT_DIR/zine/EGA"}
 TMP_PAL="$OUT_DIR/ega16.png"
 

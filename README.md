@@ -31,7 +31,7 @@ Viewer:
 ```text
 src/            DOS C source code
 tools/          image conversion scripts
-assets/source/  source photos used by the converters
+images/         source photos used by the converters
 zine/           generated runtime image data used by the DOS viewer
 dosbox/         DOSBox helper configs/scripts
 docs/           extra project notes
@@ -85,7 +85,7 @@ make
 
 ## Convert images
 
-Put `.jpg` images into `assets/source/`, then run:
+Put `.jpg` images into `images/`, then run:
 
 ```sh
 ./tools/convert_all.sh

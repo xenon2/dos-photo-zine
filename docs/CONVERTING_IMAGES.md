@@ -1,6 +1,6 @@
 # Converting images
 
-Put source `.jpg` files in `assets/source/`, then run:
+Put source `.jpg` files in `images/`, then run:
 
 ```sh
 ./tools/convert_all.sh
