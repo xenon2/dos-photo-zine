@@ -7,7 +7,7 @@ typedef struct ViewerOps {
     void (*load_image)(int index);
     int  (*image_exists)(int index);
     void (*transition)(void);
-    void (*show_image_info)(int index);
+    int  (*show_image_info)(int index);
     int  (*hardware_available)(void);
 } ViewerOps;
 

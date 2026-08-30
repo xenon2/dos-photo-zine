@@ -113,22 +113,30 @@ static void images_key_loop(void)
             break;
 
         if (KEY_ASCII(key) == KEY_INFO) {
-            active_viewer->show_image_info(current);
-            read_key();
+            if (active_viewer->show_image_info(current))
+                read_key();
+            else
+                graphics_no_image_info(active_viewer->set_video_mode);
+            continue;
         }
 
         switch (KEY_SCAN(key))
         {
             case SCAN_LEFT:
                 current = previous_image(current);
+                active_viewer->transition();
                 break;
 
             case SCAN_RIGHT:
                 current = next_image(current);
+                active_viewer->transition();
+                break;
+
+            default:
+                graphics_help(active_viewer->set_video_mode);
+                read_key();
                 break;
         }
-
-        active_viewer->transition();
     }
 }
 

@@ -8,6 +8,9 @@
 #define SCAN_LEFT  0x4B
 #define SCAN_RIGHT 0x4D
 
+void graphics_help(void (*reset_video_mode)(void));
+int graphics_image_info(void (*reset_video_mode)(void), int index);
+void graphics_no_image_info(void (*reset_video_mode)(void));
 void sleep_nseconds(unsigned int nseconds);
 void clear_keyboard_buffer(void);
 int read_key_nb(void);

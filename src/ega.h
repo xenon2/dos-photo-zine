@@ -9,7 +9,7 @@ void load_ega_palette(int index);
 void transition_ega(void);
 void set_ega_mode(void);
 int is_ega(void);
-void image_info_ega(int index);
+int image_info_ega(int index);
 
 extern const ViewerOps ega_viewer_ops;
 

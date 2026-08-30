@@ -9,6 +9,7 @@
 
 #include "ega.h"
 #include "dzdecode.h"
+#include "utils.h"
 
 #define EGA_PTR ((unsigned char far*)0xA0000000L)
 
@@ -170,23 +171,9 @@ void transition_ega(void)
 }
 
 
-void image_info_ega(int index)
+int image_info_ega(int index)
 {
-    #define TXT_BUFFER 1024
-    char filename[64];
-    char textBuffer[TXT_BUFFER+1];          //everything else will be truncated
-    int fd;
-
-    sprintf(filename, "zine/EGA/%d.txt", index);
-    fd = open(filename, O_RDONLY | O_BINARY);
-    if (fd < 0) return;
-    memset(textBuffer,0,sizeof(textBuffer));
-
-    read(fd, textBuffer, TXT_BUFFER);
-    close(fd);
-
-    _settextposition(0, 0);
-    printf("%s\n", textBuffer);
+    return graphics_image_info(set_ega_mode, index);
 }
 
 int image_ega_exists(int index)

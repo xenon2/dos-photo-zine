@@ -50,6 +50,11 @@ if [ "$include_vga" -eq 1 ]; then
     cp zine/VGA/* RELEASE/ZINE/VGA/
 fi
 
+for file in zine/*.txt; do
+    [ -f "$file" ] || continue
+    cp "$file" RELEASE/ZINE/
+done
+
 cp main.exe RELEASE/ZINE.EXE
 cp README.md RELEASE/README.TXT
 [ -f LICENSE ] && cp LICENSE RELEASE/

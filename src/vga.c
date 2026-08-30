@@ -7,6 +7,7 @@
 
 #include "vga.h"
 #include "dzdecode.h"
+#include "utils.h"
 
 #define VGA_PTR ((unsigned char far*)0xA0000000L)
 #define IMG_SIZE 64000
@@ -133,12 +134,10 @@ int image_vga_exists(int index)
     return 1;
 }
 
-void image_info_vga(int index)
+int image_info_vga(int index)
 {
-
+    return graphics_image_info(set_vga_mode, index);
 }
-
-
 
 void set_vga_mode(void)
 {

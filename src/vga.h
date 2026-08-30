@@ -14,7 +14,7 @@ void transition_vga(void);
 
 int is_vga(void);
 
-void image_info_vga(int index);
+int image_info_vga(int index);
 
 extern const ViewerOps vga_viewer_ops;
 

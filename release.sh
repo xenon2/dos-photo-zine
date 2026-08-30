@@ -23,6 +23,10 @@ for file in zine/VGA/*; do
     [ -f "$file" ] || continue
     cp "$file" RELEASE/ZINE/VGA/
 done
+for file in zine/*.txt; do
+    [ -f "$file" ] || continue
+    cp "$file" RELEASE/ZINE/
+done
 cp README.md RELEASE/README.TXT
 [ -f LICENSE ] && cp LICENSE RELEASE/
 

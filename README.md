@@ -24,6 +24,7 @@ Viewer:
 
 - Left / Right arrows - previous / next image
 - `i` - show image info/caption, when available
+- Any other key - show the graphics-mode help screen
 - Esc - return to DOS text mode and quit
 
 ## Repository layout
@@ -43,7 +44,7 @@ Runtime data is expected at:
 zine/VGA/*.DAT
 zine/VGA/*.PAL
 zine/EGA/*.DAT
-zine/EGA/*.txt
+zine/*.txt
 ```
 
 ## Requirements
