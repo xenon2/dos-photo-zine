@@ -51,7 +51,9 @@ static void wait_frames(int n)
 }
 
 
-void transition_vga(void)
+void transition_vga(void) {};
+
+void transition_vga2(void)
 {
     unsigned char far *vram = (unsigned char far*)0xA0000000L;
     int y, x;
