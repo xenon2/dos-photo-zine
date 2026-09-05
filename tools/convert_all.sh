@@ -21,9 +21,18 @@ fi
 "$SCRIPT_DIR/convert_ega.sh" "$@"
 "$SCRIPT_DIR/convert_vga.sh" "$@"
 
+# ZINE.EXE looks for the customizable startup banner as zine/info.txt.
+# Keep the generated copy in sync with the source, including removing a stale
+# copy when images/info.txt has been deleted.
+mkdir -p "$CAPTION_DIR"
+rm -f "$CAPTION_DIR/info.txt"
+if [ -f "$SRC_DIR/info.txt" ]; then
+    cp "$SRC_DIR/info.txt" "$CAPTION_DIR/info.txt"
+    printf 'Startup banner info.txt -> zine/info.txt\n'
+fi
+
 # ZINE.EXE looks for captions as zine/<image number>.txt. Keep caption
 # numbering in lockstep with the image ordering used by both converters.
-mkdir -p "$CAPTION_DIR"
 for file in "$CAPTION_DIR"/[0-9]*.txt "$CAPTION_DIR"/[0-9]*.TXT; do
     [ -f "$file" ] || continue
     rm -f "$file"

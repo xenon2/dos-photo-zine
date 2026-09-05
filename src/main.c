@@ -42,14 +42,11 @@ static void banner(void)
     pc_beep(240, 50);
     pc_beep(340, 50);
 
-    sprintf(build_info, "Build: %s %s", __DATE__, __TIME__);
-
     printf("+-----------------------------------------+\n");
     banner_line("");
     banner_line("       WELCOME TO DOS PHOTO ZINE");
     banner_line("");
     printf("+-----------------------------------------+\n");
-    banner_line(build_info);
     banner_line("Choose your display mode:");
 
     if (vga_available)
@@ -67,6 +64,12 @@ static void banner(void)
     banner_line("Viewer: [<-] Previous  [->] Next");
     banner_line("        [i] Info       [ESC] Exit");
     printf("+-----------------------------------------+\n");
+
+
+    sprintf(build_info, "Build: %s %s", __DATE__, __TIME__);
+    banner_line(build_info);
+    printf("+-----------------------------------------+\n");
+
 }
 
 static void exit_prog(void)

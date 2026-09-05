@@ -1,5 +1,5 @@
 CC         = wcl
-CPU_FLAGS  ?= -3
+CPU_FLAGS  ?= -2
 OPT_FLAGS  ?= -ox -ot
 # The program fits in one 64 KiB code segment and one 64 KiB data segment.
 # Small model keeps normal code/data pointers near; huge model makes every

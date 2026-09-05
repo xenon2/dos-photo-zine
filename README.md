@@ -7,8 +7,9 @@ A tiny DOS photo zine and image viewer supporting:
 - Streaming LZSS image decompression with a 4 KiB window
 
 The viewer detects the available image data and video hardware, then lets you
-choose VGA or EGA mode. It has been tested with DOSBox and on a real Pentium
-133/SVGA laptop.
+choose VGA or EGA mode. The minimum CPU target is an Intel 80286. It requires
+an EGA card with at least 128 KiB of video memory, or a VGA/MCGA-compatible
+card. It has been tested with DOSBox and on a real Pentium 133/SVGA laptop.
 
 ## You do not need to compile the DOS program
 
