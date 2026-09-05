@@ -29,7 +29,8 @@ Image conversion requires:
 ### 1. Add images
 
 Place JPEG images in the `images/` directory. Files are displayed in filename
-order.
+order. To add a caption, place a `.txt` file with the same base name beside its
+image (for example, `photo.jpg` and `photo.txt`).
 
 ### 2. Convert images
 
@@ -37,8 +38,9 @@ order.
 ./convert_images.sh
 ```
 
-This creates the DOS image data in `zine/EGA/` and `zine/VGA/`. It does not
-compile or replace `ZINE.EXE`.
+This creates the DOS image data in `zine/EGA/` and `zine/VGA/`. Matching
+caption files are copied to `zine/<image number>.txt` for `ZINE.EXE` to read.
+It does not compile or replace `ZINE.EXE`.
 
 ### 3. Test locally
 
