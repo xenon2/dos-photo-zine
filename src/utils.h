@@ -8,6 +8,7 @@
 #define SCAN_LEFT  0x4B
 #define SCAN_RIGHT 0x4D
 
+void print_banner_file(const char *filename, const char *fallback);
 void graphics_help(void (*reset_video_mode)(void));
 int graphics_image_info(void (*reset_video_mode)(void), int index);
 void graphics_no_image_info(void (*reset_video_mode)(void));

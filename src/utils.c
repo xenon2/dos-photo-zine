@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "utils.h"
 #include "beep.h"
@@ -11,6 +12,34 @@
 #define INFO_BOX_WIDTH 38
 #define INFO_LINE_WIDTH 34
 #define INFO_MAX_LINES 16
+#define BANNER_LINE_WIDTH 39
+
+static void print_banner_text(const char *text)
+{
+    do {
+        size_t length = strlen(text);
+
+        printf("| %-39.39s |\n", text);
+        text += length > BANNER_LINE_WIDTH ? BANNER_LINE_WIDTH : length;
+    } while (*text);
+}
+
+void print_banner_file(const char *filename, const char *fallback)
+{
+    char text[INFO_BUFFER_SIZE + 1];
+    FILE *file = fopen(filename, "rt");
+
+    if (file == NULL) {
+        print_banner_text(fallback);
+        return;
+    }
+
+    while (fgets(text, sizeof(text), file) != NULL) {
+        text[strcspn(text, "\r\n")] = '\0';
+        print_banner_text(text);
+    }
+    fclose(file);
+}
 
 static void graphics_text_line(unsigned char row, unsigned char column,
                                const char *text)

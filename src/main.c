@@ -44,7 +44,7 @@ static void banner(void)
 
     printf("+-----------------------------------------+\n");
     banner_line("");
-    banner_line("       WELCOME TO DOS PHOTO ZINE");
+    print_banner_file("zine/info.txt", " DOS Photo Zine  ");
     banner_line("");
     printf("+-----------------------------------------+\n");
     banner_line("Choose your display mode:");

@@ -41,7 +41,9 @@ image (for example, `photo.jpg` and `photo.txt`).
 
 This creates the DOS image data in `zine/EGA/` and `zine/VGA/`. Matching
 caption files are copied to `zine/<image number>.txt` for `ZINE.EXE` to read.
-It does not compile or replace `ZINE.EXE`.
+To customize the startup banner, add `images/info.txt`; multiline text is
+preserved and long lines are wrapped inside the title-screen box. It does
+not compile or replace `ZINE.EXE`.
 
 ### 3. Test locally
 
