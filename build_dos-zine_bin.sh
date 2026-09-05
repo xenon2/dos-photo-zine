@@ -4,7 +4,7 @@ set -eu
 # WATCOM is supplied by the user so the installation can live anywhere.
 if [ -z "${WATCOM:-}" ]; then
     printf '%s\n' 'error: set WATCOM to the Open Watcom installation directory' >&2
-    printf '%s\n' 'example: WATCOM=/opt/watcom ./build.sh' >&2
+    printf '%s\n' 'example: WATCOM=/opt/watcom ./build_dos-zine_bin.sh' >&2
     exit 1
 fi
 
@@ -44,4 +44,6 @@ export WATCOM PATH INCLUDE LIB
 cd "$(dirname "$0")"
 MAKE=${MAKE:-make}
 "$MAKE" clean
-exec "$MAKE" "$@"
+# Rebuild even when the shipped executable is newer than the checked-out sources.
+"$MAKE" -B "$@"
+printf '%s\n' 'Program built: ZINE.EXE (the canonical local test executable)'

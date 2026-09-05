@@ -1,12 +1,11 @@
 #!/bin/sh
-set -e
+set -eu
 
-SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
-RELEASE_DIR="$SCRIPT_DIR/RELEASE"
+ROOT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 
-if [ ! -f "$RELEASE_DIR/ZINE.EXE" ]; then
-    printf 'error: %s not found; prepare a release first\n' \
-        "$RELEASE_DIR/ZINE.EXE" >&2
+if [ ! -f "$ROOT_DIR/ZINE.EXE" ]; then
+    printf 'error: %s not found; restore it or run ./build_dos-zine_bin.sh\n' \
+        "$ROOT_DIR/ZINE.EXE" >&2
     exit 1
 fi
 
@@ -21,7 +20,8 @@ else
     exit 1
 fi
 
+printf '%s\n' 'Testing the canonical local executable: ZINE.EXE'
 exec "$dosbox_command" \
-    -c "mount c \"$RELEASE_DIR\"" \
+    -c "mount c \"$ROOT_DIR\"" \
     -c 'c:' \
     -c 'zine.exe'

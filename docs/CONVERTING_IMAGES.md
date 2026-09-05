@@ -3,10 +3,11 @@
 Put source `.jpg` files in `images/`, then run:
 
 ```sh
-./tools/convert_all.sh
+./convert_images.sh
 ```
 
-Generated viewer data is written to:
+This does not invoke Open Watcom or replace `ZINE.EXE`. Generated viewer data
+is written to:
 
 - `zine/VGA/` as compressed 320x200 index data plus 256-color palettes
 - `zine/EGA/` as compressed packed 4bpp 640x350 16-color EGA data
