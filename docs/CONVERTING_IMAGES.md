@@ -1,15 +1,19 @@
 # Converting images
 
-Put source `.jpg` files in `images/`, then run:
+Put source `.jpg` files in `images/`. An image can have an optional caption in
+a `.txt` file with the same base name (for example, `photo.jpg` and
+`photo.txt`). Then run:
 
 ```sh
-./tools/convert_all.sh
+./convert_images.sh
 ```
 
-Generated viewer data is written to:
+This does not invoke Open Watcom or replace `ZINE.EXE`. Generated viewer data
+is written to:
 
 - `zine/VGA/` as compressed 320x200 index data plus 256-color palettes
 - `zine/EGA/` as compressed packed 4bpp 640x350 16-color EGA data
+- `zine/<image number>.txt` for captions matched to source images
 
 ## DAT compression
 

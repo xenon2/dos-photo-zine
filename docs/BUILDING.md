@@ -1,7 +1,7 @@
 # Building
 
 Install Open Watcom C and set `WATCOM` to its installation directory. If
-`wcl` is not already on `PATH`, `build.sh` selects `binl64` or `binl` on Linux.
+`wcl` is not already on `PATH`, `build_dos-zine_bin.sh` selects `binl64` or `binl` on Linux.
 
 Tested compiler:
 
@@ -13,38 +13,48 @@ Version 2.0 beta Dec  8 2023 19:09:05 (64-bit)
 Then run from the repository root:
 
 ```sh
-WATCOM=/path/to/open-watcom ./build.sh
+WATCOM=/path/to/open-watcom ./build_dos-zine_bin.sh
 ```
 
 The build explicitly uses Watcom's `lib286` libraries because they provide the
-16-bit runtime required by the real-mode `-mh` target. The `-3` option may still
-generate 386 instructions suitable for a 386SX; `lib386` is for 32-bit targets.
+16-bit runtime required by the real-mode `-ms` target. The default `-2` option
+generates code for an Intel 80286, the minimum supported CPU. `lib386` is for
+32-bit targets and is not used by this program.
 
-The DOS executable is written to `main.exe`. The default build targets an
-80386 or newer CPU and favors runtime speed:
+A successful build replaces the canonical root `ZINE.EXE`. This is the same
+file used by local test and packaging scripts, so there is no separate old
+binary that might be tested accidentally. `make clean` removes object files
+but deliberately preserves the supplied executable. The default build targets
+an 80286 or newer CPU and favors runtime speed:
 
-- `-3` allows 386 instructions and selects Watcom's 386 scheduling model.
+- `-2` allows 286 instructions and selects Watcom's 286 scheduling model.
 - `-ox` enables Watcom's full optimization set, including loop, intrinsic,
   branch, and instruction-scheduling optimizations. It also disables generated
   stack-overflow checks.
 - `-ot` favors execution speed over code size when the optimizer has a choice.
 
-The program remains a 16-bit real-mode DOS executable; `-3` changes generated
-instructions, not the memory model. To build for an older CPU or compare a less
-aggressive optimization profile, override the Make variables, for example:
+The program remains a 16-bit real-mode DOS executable. To build for an older
+CPU, or to compare another instruction or optimization profile, override the
+Make variables. For example:
 
 ```sh
 make clean
-make CPU_FLAGS=-0 OPT_FLAGS=-ol
+make CPU_FLAGS=-0 OPT_FLAGS=-ol  # 8086-compatible experimental build
+
+# Alternatively, after cleaning again:
+make clean
+make CPU_FLAGS=-3                # 386-or-newer build
 ```
 
 Overriding `CFLAGS` directly is also supported. A clean build is required after
 changing flags because Make does not track command-line changes as dependencies.
 
-To prepare a distributable package:
+To package the current `ZINE.EXE` and already-converted image data without
+invoking Watcom:
 
 ```sh
-./release.sh
+./package.sh
 ```
 
-This builds the program and creates `RELEASE/` plus `dos-photo-zine.zip`.
+Maintainers can run `./release.sh` for the complete source-build, image
+conversion, and packaging workflow.

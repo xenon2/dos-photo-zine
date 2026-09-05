@@ -3,6 +3,7 @@ build/
 RELEASE/
 *.obj
 *.exe
+!/ZINE.EXE
 *.zip
 
 # Logs / local run output
