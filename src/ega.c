@@ -44,18 +44,16 @@ int is_ega(void)
 
     /*
         BL returned:
-        00h = no EGA
-        01h = EGA 64k
-        02h = EGA 128k
+        00h = EGA 64k
+        01h = EGA 128k
+        02h = EGA 192k
         03h = EGA 256k
-        VGA always reports >=02h
+        If unsupported, BL remains 10h.
     */
 
-    if (r.h.bl == 0)
-        return 0;
-
-    /* EGA 640x350 requires >= 128k */
-    return (r.h.bl >= 2);
+    /* EGA 640x350 requires >= 128k. Reject unchanged BL on hardware
+       that does not support this BIOS function, and other invalid values. */
+    return (r.h.bl >= 1 && r.h.bl <= 3);
 }
 
 static void ega_set_map_mask(unsigned char mask)
